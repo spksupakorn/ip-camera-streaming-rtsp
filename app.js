@@ -1,32 +1,47 @@
-var http = require('http');
-var fs = require('fs');
-var index = fs.readFileSync( 'index.html');
+const http = require('http');
+const socketIo = require('socket.io');
+const cors = require('cors');
+const express = require('express');
 
-var app = http.createServer(function(req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end(index);
+// Create an Express app
+const app = express();
+
+app.use(cors());
+
+// Create an HTTP server
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Socket.IO server is running.\n');
 });
 
-var io = require('socket.io').listen(app);
+// Attach Socket.IO to the server
+const io = socketIo(server, {
+    cors: {
+        origin: '*', // Allow all origins, adjust this as necessary for your use case
+        methods: ['GET', 'POST'],
+    }
+});
 
-setInterval(function sendTime() {
-    
-    io.emit('time', { time: new Date().toJSON() });
-    console.log( 'EMIT: time');
-    
-}, 10000);
+// Handle connection event
+io.on('connection', (socket) => {
+    console.log('A client connected');
 
-io.on('connection', function(socket) {
-    
-    socket.on('fromClient',function(data){
-   
-        console.log( 'ON: fromClient');
-        
-        socket.emit('fromServer', { message: 'Received message! Returning message!!' });
-        console.log( 'EMIT: fromServers');
-    
+    // Handle incoming messages from clients
+    socket.on('message', (message) => {
+        console.log(`Received message: ${message}`);
+        // Send a message back to the client
+        socket.send(`Server received: ${message}`);
     });
-    
+
+    // Handle client disconnect
+    socket.on('disconnect', () => {
+        console.log('A client disconnected');
+    });
 });
 
-app.listen(3000);
+// Start the server
+const PORT = 3000;
+
+server.listen(PORT, () => {
+    console.log(`Server is listening on port ${PORT}`);
+});

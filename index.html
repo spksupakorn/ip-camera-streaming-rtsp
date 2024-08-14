@@ -1,39 +1,35 @@
-<!doctype html>
-<html>
-  <head>
-    
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Client</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Socket.IO Client</h1>
+    <script>
+        // Connect to the Socket.IO server
+        const socket = io('http://localhost:8001/socket.io/');
 
-  </head>
-  <body>
-        
-    <button id="fromClient">From Client</button>
+        // Handle connection
+        socket.on('connect', () => {
+            console.log('Connected to the server');
 
-      <script>
+            // Send a message to the server
+            socket.send('Hello, Server!');
 
-      var socket = io();
+            // Handle incoming messages from the server
+            socket.on('message', (message) => {
+                console.log(`Received from server: ${message}`);
+            });
+        });
 
-      socket.on('fromServer', function(data) {
-                
-        console.log( 'ON: fromServer');
-                
-      });
-          
-      socket.on('time', function(data) {
-                
-        console.log( 'ON: time');
-                
-      });
-            
-      document.getElementById('fromClient').onclick = function(){
-               
-        socket.emit('fromClient', { "message":"Sent from client!" });
-        console.log( 'EMIT: fromClient');
-                
-      }
-            
+        // Handle disconnection
+        socket.on('disconnect', () => {
+        console.log('Disconnected from the server');
+        });
     </script>
-        
-  </body>
-
+</body>
 </html>
+
