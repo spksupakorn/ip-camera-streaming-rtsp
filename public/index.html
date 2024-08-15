@@ -6,15 +6,26 @@
     <title>ip camara streaming</title>
     <link rel="icon" href="https://www.livepepper.fr/wp-content/uploads/LP-blog-favicon-LivePepper.jpg" type="image/x-icon"/>
     <link href="https://vjs.zencdn.net/7.11.4/video-js.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 5% auto;
+            max-width: 100%;
+            background-color: rgb(144, 190, 196);
+            padding-top: 7%;
+            padding-left: 30%;
+        }
+    </style>
 </head>
 <body>
     <div class="video-container">
         <video
             id="hls-example"
             class="video-js vjs-default-skin"
-            width="800"
-            height="600"
-            controls>
+            width="600"
+            height="400"
+            controls
+            muted="muted"
+            autoplay>
             <source
                 type="application/x-mpegURL"
                 src="../hls/index.m3u8" />

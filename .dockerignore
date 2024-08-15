@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+Dockerfile*
+docker-compose*
+.dockerignore
+.git
+.gitignore
+.vscode
+old.gitlab-ci.yml
+run-win.sh
+old.env
+docker-build.sh
