@@ -1,47 +1,72 @@
-const http = require('http');
-const socketIo = require('socket.io');
-const cors = require('cors');
 const express = require('express');
+const cors = require('cors');
+const fluentFFmpeg = require('fluent-ffmpeg');
+const fs = require('fs');
+const path = require('path');
+const { spawn } = require('child_process');
 
-// Create an Express app
+require('dotenv').config();
+
 const app = express();
+const port = process.env.PORT || 8000;
 
-app.use(cors());
+// RTSP URL and HLS output directory
+const rtspUrl = process.env.RTSP_URL;
+const hlsOutputDir = path.join(__dirname, 'hls');
 
-// Create an HTTP server
-const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Socket.IO server is running.\n');
-});
+// Ensure the HLS output directory exists
+if (!fs.existsSync(hlsOutputDir)) {
+    fs.mkdirSync(hlsOutputDir);
+}
 
-// Attach Socket.IO to the server
-const io = socketIo(server, {
-    cors: {
-        origin: '*', // Allow all origins, adjust this as necessary for your use case
-        methods: ['GET', 'POST'],
-    }
-});
+// Function to start FFmpeg process
+function startFFmpeg() {
+    return new Promise((resolve, reject) => {
+        const ffmpeg = fluentFFmpeg()
+            .input(rtspUrl)
+            .inputOptions('-rtsp_transport tcp')
+            .output(path.join(hlsOutputDir, 'index.m3u8'))
+            .outputOptions([
+                '-fflags +genpts',
+                '-vsync 0',
+                '-preset veryfast',
+                '-g 50',
+                '-sc_threshold 0',
+                '-codec:v libx264',
+                '-codec:a aac',
+                '-f hls',
+                '-hls_time 2',
+                '-hls_list_size 6',
+                '-start_number 1'
+            ])
+            .on('end', () => resolve())
+            .on('error', (err) => reject(err))
+            .run();
+    });
+}
 
-// Handle connection event
-io.on('connection', (socket) => {
-    console.log('A client connected');
-
-    // Handle incoming messages from clients
-    socket.on('message', (message) => {
-        console.log(`Received message: ${message}`);
-        // Send a message back to the client
-        socket.send(`Server received: ${message}`);
+// Start FFmpeg process
+startFFmpeg()
+    .then(() => {
+        console.log('FFmpeg started successfully');
+    })
+    .catch((err) => {
+        console.error('Error starting FFmpeg:', err);
     });
 
-    // Handle client disconnect
-    socket.on('disconnect', () => {
-        console.log('A client disconnected');
-    });
+const corsOptions = {
+    origin: "*",
+};
+
+// Serve HLS content
+app.use('/hls', express.static(hlsOutputDir));
+app.use(cors(corsOptions));
+
+// Serve the HTML page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
-// Start the server
-const PORT = 3000;
-
-server.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}/hls`);
 });
