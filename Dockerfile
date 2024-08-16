@@ -1,5 +1,8 @@
 FROM node:18-alpine
 
+ARG NODE_ENV=production
+ENV NODE_ENV $NODE_ENV
+
 # Setting working directory
 WORKDIR /app
 
@@ -20,7 +23,7 @@ COPY . .
 
 # Exposing ports
 EXPOSE 8000
-# EXPOSE 1935
+EXPOSE 9999
 
 # Running the app
-CMD ["node", "app.js"]
+CMD ["node", "server.js"]

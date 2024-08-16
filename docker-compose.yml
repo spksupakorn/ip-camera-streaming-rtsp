@@ -1,8 +1,8 @@
 version: '3.9'
 
 services:
-  hls-server:
-    image: hls-server
+  rtsp-stream-server:
+    image: rtsp-stream-server
     container_name: ip-camara-streaming-server
     # build:
     #   context: .
@@ -11,12 +11,14 @@ services:
       NODE_ENV: production
       RTSP_URL: rtsp://192.168.73.237/screenlive
       PORT: 8000
+      WS_PORT: 9999
     ports:
       - 8000:8000
+      - 9999:9999
     networks:
-      - hls-server
+      - rtsp-server
 
 networks:
-  hls-server:
+  rtsp-server:
     driver: bridge
-    name: hls-server
+    name: rtsp-server

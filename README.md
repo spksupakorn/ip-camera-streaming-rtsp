@@ -1,126 +1,64 @@
-# A Sample Interaction using Node.js and Socket
+# node-rtsp-stream-jsmpeg
 
-This tutorial will walk you through the creation of a simple Node.js and Socket.io example. It includes sending a message from an HTML page to a Node.js server and a message from a Node.js server to an HTML page. 
+First of all, it's a based on  [**node-rtsp-stream-es6**](https://github.com/Wifsimster/node-rtsp-stream-es6) and [**node-rtsp-stream**]
 
-## Steps
+## Differences with the original modules
 
-1. Create an HTML file with the basic required HTML tags:
+- Code based on official documentation of https://github.com/phoboslab/jsmpeg for server side decoding video
 
-    ```html
-    <!doctype html>
-    <html>
-      <head>
-        
-        <title>Node.js and Socket.io</title>
-    
-      </head>
-      <body> 
-           
-      </body>
-    </html>
-    ```
+## Description
 
-2. Include the Socket.io CDN in the `head` section:
+Stream any RTSP stream and output to [WebSocket](https://github.com/websockets/ws) for consumption by [jsmpeg](https://github.com/phoboslab/jsmpeg).
+HTML5 streaming video!
 
-    ```html
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
-    ```
+## Requirements
 
-3. Add a button to the `body` section:
+You need to download and install [FFMPEG](https://ffmpeg.org/download.html) in server-side.
 
-    ```html
-    <button id="fromClient">From Client</button>
-    ```
+##Installation
 
-4. Before the close `body` tag add JavaScript that will initialize Socket.io, receive a Socket.io message from the Node.js server, and send a message to the Node.js server when the button is clicked:
-    
-    ```html
-    <script>
-    
-    var socket = io();
-    
-    socket.on('fromServer', function(data) {
-      console.log( 'ON: fromServer');
-    });
-    
-    socket.on('time', function(data) {
-      console.log( 'ON: time');
-    });
-    
-    document.getElementById('fromClient').onclick = function(){
-      socket.emit('fromClient', { "message":"Sent from client!" });
-      console.log( 'EMIT: fromClient');
-    }
-    
-    </script>
-    ```
+```
+npm i node-rtsp-stream-jsmpeg
+```
 
-5. Create a `package.json` file and add Socket.io as a dependency:
+## Server
 
-    ```json
-    {
-      "name": "nodejs-socket",
-      "version": "0.0.1",
-      "description": "Sample communication from an HTML document to a Node.js server using Socket.io.",
-      "dependencies": {
-        "socket.io": "^2.0.4"
-      }
-    }
-    ```
+```
+const Stream = require('node-rtsp-stream-jsmpeg')
 
-6. Create a Node.js file names `app.js` and set up a basic http server:
+const options = {
+  name: 'streamName',
+  url: 'rtsp://184.72.239.149/vod/mp4:BigBuckBunny_115k.mov',
+  wsPort: 3333
+}
 
-    ```javascript
-    var http = require('http');
-    var fs = require('fs');
-    var index = fs.readFileSync( 'index.html');
-    
-    var app = http.createServer(function(req, res) {
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        res.end(index);
-    });
-    
-    app.listen(3000);
-    ```
+stream = new Stream(options)
+stream.start()
+```
 
-7. Before `app.listen(3000);` add JavaScript to intermitantly send a messages to the HTML file and receive any messages sent form the HTML file:
 
-    ```javascript
-    var io = require('socket.io').listen(app);
-    
-    setInterval(function sendTime() {
-      io.emit('time', { time: new Date().toJSON() });
-      console.log( 'EMIT: time');
-    }, 10000);
-    
-    io.on('connection', function(socket) {
-      socket.on('fromClient',function(data){
-        console.log( 'ON: fromClient');
-        socket.emit('fromServer', { message: 'Received message! Returning message!!' });
-        console.log( 'EMIT: fromServers');
-      });
-    });
-    ```
+## Client
 
-8. Start the Node.js app:
+```
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>DEMO node-rtsp-stream-jsmpeg</title>
+  <script src="https://jsmpeg.com/jsmpeg.min.js"></script>
+</head>
+<body>
+  <div>
+    <canvas id="video-canvas">
+    </canvas>
+  </div>
 
-    ```
-    node app.js
-    ```
+  <script type="text/javascript">
+  var url = "ws://localhost:3333";
+  var canvas = document.getElementById('video-canvas');
+  var player = new JSMpeg.Player(url, {canvas: canvas});
+  </script>
+</body>
+```
 
-9. Open the HTML file using `http://localhost:3000`, open the browser console, and test.
-
-> Full tutorial URL:  
-> https://codeadam.ca/learning/nodejs-socket.html
-
-***
-
-## Repo Resources
-
-* [Visual Studio Code](https://code.visualstudio.com/)
-* [Node.js](https://nodejs.org/en/)
-* [Socket.io](https://socket.io/)
-
-<a href="https://codeadam.ca">
-<img src="https://codeadam.ca/images/code-block.png" width="100">
-</a>
+You can find a live stream JSMPEG example here : https://github.com/phoboslab/jsmpeg/blob/master/stream-example.html

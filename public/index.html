@@ -1,44 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ip camara streaming</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Ip Camera Streaming</title>
     <link rel="icon" href="https://www.livepepper.fr/wp-content/uploads/LP-blog-favicon-LivePepper.jpg" type="image/x-icon"/>
-    <link href="https://vjs.zencdn.net/7.11.4/video-js.css" rel="stylesheet">
-    <style>
-        body {
-            margin: 5% auto;
-            max-width: 100%;
-            background-color: rgb(144, 190, 196);
-            padding-top: 7%;
-            padding-left: 30%;
-        }
-    </style>
+    <script src="https://jsmpeg.com/jsmpeg.min.js"></script>
 </head>
 <body>
-    <div class="video-container">
-        <video
-            id="hls-example"
-            class="video-js vjs-default-skin"
-            width="600"
-            height="400"
-            controls
-            muted="muted"
-            autoplay>
-            <source
-                type="application/x-mpegURL"
-                src="../hls/index.m3u8" />
-        </video>
+    <div>
+        <canvas id="video-canvas">
+        </canvas>
     </div>
 
-    <script src="https://vjs.zencdn.net/ie8/ie8-version/videojs-ie8.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.14.1/videojs-contrib-hls.js"></script>
-    <script src="https://vjs.zencdn.net/7.2.3/video.js"></script>
-
-    <script>
-        var player = videojs("hls-example");
-        player.play();
+    <script type="text/javascript">
+        var url = "ws://0.tcp.ap.ngrok.io:10523/";
+        // var url = "ws://0.tcp.jp.ngrok.io:14486";
+        var canvas = document.getElementById('video-canvas');
+        var player = new JSMpeg.Player(url, {canvas: canvas});
     </script>
 </body>
 </html>

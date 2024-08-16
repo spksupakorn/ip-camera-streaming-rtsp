@@ -1,24 +1,44 @@
 {
-    "name": "test-rtsp-to-web",
-    "version": "0.0.1",
-    "description": "Sample test rtsp to web",
-    "main": "index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "node app.js",
-        "dev": "nodemon app.js",
-        "clean": "node cleaner.js"
-    },
-    "dependencies": {
-        "child_process": "^1.0.2",
-        "cors": "^2.8.5",
-        "dotenv": "^16.4.5",
-        "express": "^4.19.2",
-        "find-remove": "^4.1.0",
-        "fluent-ffmpeg": "^2.1.3",
-        "node-cron": "^3.0.3",
-        "node-rtsp-stream": "^0.0.9",
-        "nodemon": "^3.1.4",
-        "socket.io": "^4.7.5"
+  "_id": "node-rtsp-stream-jsmpeg@0.0.2",
+  "_inBundle": false,
+  "_location": "/node-rtsp-stream-jsmpeg",
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "node-rtsp-stream-jsmpeg@0.0.2",
+    "name": "node-rtsp-stream-jsmpeg",
+    "escapedName": "node-rtsp-stream-jsmpeg",
+    "rawSpec": "1.0",
+    "saveSpec": null,
+    "fetchSpec": "0.0.2"
+  },
+  "author": {
+    "name": "Zveroslav"
+  },
+  "bugs": {
+    "url": "https://github.com/Zveroslav/node-rtsp-stream-jsmpeg/issues"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "http-shutdown": "^1.2",
+    "jsmpeg": "^1.0.0",
+    "node-rtsp-stream-jsmpeg": "^0.0.2",
+    "ws": "^1.1.1"
+  },
+  "description": "RTSP stream through WebSocket for jsmpeg decoder",
+  "homepage": "",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/brentertz/scapegoat/blob/master/LICENSE-MIT"
     }
+  ],
+  "main": "index.js",
+  "name": "node-rtsp-stream-jsmpeg",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Zveroslav/node-rtsp-stream-jsmpeg.git"
+  },
+  "version": "0.0.2"
 }
