@@ -1,15 +1,21 @@
 const express = require('express');
+const bodyParser = require("body-parser");
+const cors = require("cors"); 
 const Stream = require('node-rtsp-stream-jsmpeg');
 
 const app = express();
 
 require('dotenv').config();
 
-const rtsp_url = process.env.RTSP_URL;
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
+
+let rtsp_url = process.env.RTSP_URL;
 const ws_port = process.env.WS_PORT || 9999;
 const port = process.env.PORT || 8000;
 
-const options = {
+let options = {
   name: 'ip-camera',
   // url: 'rtsp://192.168.73.237/screenlive',
   url: rtsp_url,
@@ -28,12 +34,34 @@ const options = {
   },
 }
 
-const stream = new Stream(options)
+let stream = new Stream(options)
+
+function restartStream() {
+  console.log('\nRestarting stream...\n');
+  
+  // Stop the current stream
+  stream.stop();
+  
+  // Wait for a few seconds before restarting
+  setTimeout(() => {
+    // Reinitialize the stream
+    stream = new Stream(options);
+    console.log('\nStream restarted.\n');
+  }, 3000); // Adjust the timeout as needed
+}
 
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + './public/index.html');
+});
+
+app.post('/stream/seturl', async (req, res) => {
+  const { url } = req.body;
+  console.log(`\n${url}\n`);
+  rtsp_url = url;
+  restartStream();
+  res.send({ message: 'restart streaming success.' });
 });
 
 app.listen(port, () => {
