@@ -19,13 +19,17 @@
     "url": "https://github.com/Zveroslav/node-rtsp-stream-jsmpeg/issues"
   },
   "dependencies": {
+    "axios": "^1.7.5",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "http-shutdown": "^1.2",
     "jsmpeg": "^1.0.0",
+    "node-rtsp-stream": "^0.0.9",
     "node-rtsp-stream-jsmpeg": "^0.0.2",
+    "rtsp-ffmpeg": "^0.0.19",
+    "socket.io": "^4.7.5",
     "ws": "^1.1.1"
   },
   "description": "RTSP stream through WebSocket for jsmpeg decoder",

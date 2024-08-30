@@ -1,75 +1,73 @@
-const express = require('express');
+const express = require("express");
 const bodyParser = require("body-parser");
-const cors = require("cors"); 
+// const axios = require('axios');
 const Stream = require('node-rtsp-stream-jsmpeg');
-
-const app = express();
+// const Stream = require('node-rtsp-stream');
+const cors = require("cors");
 
 require('dotenv').config();
+
+const app = express();
+const port = process.env.PORT || 8000;
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
+let stream = null;
+
 let rtsp_url = process.env.RTSP_URL;
+// const ng_url = process.env.NG_URL;
 const ws_port = process.env.WS_PORT || 9999;
-const port = process.env.PORT || 8000;
 
-let options = {
-  name: 'ip-camera',
-  // url: 'rtsp://192.168.73.237/screenlive',
-  url: rtsp_url,
-  wsPort: ws_port,
-  ffmpegOptions: {
-    '-stats': '',
-    '-r': 30,
-    '-b:v': '2M', // Video bitrate (2 Mbps)
-    '-bufsize': '4M', // Buffer size
-    '-maxrate': '2M', // Maximum video bitrate
-    '-b:a': '128k', // Audio bitrate (128 kbps)
-    '-vf': 'scale=1280:720', // Set the output resolution to 720p
-    '-c:v': 'libx264', // Video codec
-    '-preset': 'fast', // Preset for encoding speed vs. compression ratio
-    '-crf': '23', // Constant Rate Factor (lower values mean better quality)
-  },
-}
+app.get("/api/v1/stream", (req, res) => {
+  const feed = req.query.rtsp;
+  console.log(`rtsp:${feed}\n`);
 
-let stream = new Stream(options)
+  let currentRtspStreamUrl = ""
+  let newRtspStreamUrl = ""
 
-function restartStream() {
-  console.log('\nRestarting stream...\n');
-  
-  // Stop the current stream
-  stream.stop();
-  
-  // Wait for a few seconds before restarting
-  setTimeout(() => {
-    // Reinitialize the stream
-    stream = new Stream(options);
-    console.log('\nStream restarted.\n');
-  }, 3000); // Adjust the timeout as needed
-}
-
-app.use(express.static('public'));
-
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + './public/index.html');
-});
-
-app.post('/stream/seturl', async (req, res) => {
-  const { url } = req.body;
-  console.log(`\n${url}\n`);
-  rtsp_url = url;
-  restartStream();
-  res.send({ message: 'restart streaming success.' });
-});
+  // axios.get(ng_url)
+  //   .then(response => {
+      // newRtspStreamUrl = response.data.result; 
+      // newRtspStreamUrl = 'rtsp://admin:WIPS031202307210178@192.168.1.100:554/'; 
+      newRtspStreamUrl = rtsp_url; 
+      if (!stream || currentRtspStreamUrl !== newRtspStreamUrl) {
+        if (!stream){
+          let options = {
+            name: 'Camera Stream',
+            // streamUrl: newRtspStreamUrl,
+            url: newRtspStreamUrl,
+            wsPort: ws_port,
+            ffmpegOptions: {
+              '-stats': '', 
+              '-r': 25,
+              // '-s': '640x480',
+              '-codec:v': 'mpeg1video',
+              '-b:v': '1000k',
+              '-an': ''
+            },
+          }
+          
+          stream = new Stream(options);
+          stream.start();
+          currentRtspStreamUrl = newRtspStreamUrl
+        } else if (stream || feed === "stop") {
+          stream.stop();
+          stream = null;
+        }
+      }
+    // })
+    // .catch(error => {
+    //   console.error(error);
+    //   res.send(500).json({ 
+    //     error: true,
+    //     message: error.message 
+    //   })
+    // });
+  // res.send(200).json({ url: `ws://127.0.0.1:9999` })
+})
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-  stream.start()
-
-  stream.on('exitWithError', () => {
-    console.log('Stream exited with error. Restarting...');
-    stream.start();
-  });
-});
+  console.log(`Server running on port ${port}`)
+})
