@@ -29,7 +29,7 @@
     "node-rtsp-stream": "^0.0.9",
     "node-rtsp-stream-jsmpeg": "^0.0.2",
     "rtsp-ffmpeg": "^0.0.19",
-    "socket.io": "^4.7.5",
+    "rtsp-relay": "^1.9.0",
     "ws": "^1.1.1"
   },
   "description": "RTSP stream through WebSocket for jsmpeg decoder",
