@@ -1,73 +1,28 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-// const axios = require('axios');
-const Stream = require('node-rtsp-stream-jsmpeg');
-// const Stream = require('node-rtsp-stream');
-const cors = require("cors");
+const express = require('express');
+const app = express();
 
 require('dotenv').config();
 
-const app = express();
 const port = process.env.PORT || 8000;
 
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());
+const rtspUrl = process.env.RTSP_URL;
 
-let stream = null;
+const { proxy } = require('rtsp-relay')(app);
 
-let rtsp_url = process.env.RTSP_URL;
-// const ng_url = process.env.NG_URL;
-const ws_port = process.env.WS_PORT || 9999;
+const handler = proxy({
+  url: rtspUrl,
+  // if your RTSP stream need credentials, include them in the URL as above
+  verbose: true,
+});
 
-app.get("/api/v1/stream", (req, res) => {
-  const feed = req.query.rtsp;
-  console.log(`rtsp:${feed}\n`);
+app.use(express.static('public'));
 
-  let currentRtspStreamUrl = ""
-  let newRtspStreamUrl = ""
+// app.get('/', (req, res) => {
+//   res.sendFile(__dirname + './public/index.html');
+// });
 
-  // axios.get(ng_url)
-  //   .then(response => {
-      // newRtspStreamUrl = response.data.result; 
-      // newRtspStreamUrl = 'rtsp://admin:WIPS031202307210178@192.168.1.100:554/'; 
-      newRtspStreamUrl = rtsp_url; 
-      if (!stream || currentRtspStreamUrl !== newRtspStreamUrl) {
-        if (!stream){
-          let options = {
-            name: 'Camera Stream',
-            // streamUrl: newRtspStreamUrl,
-            url: newRtspStreamUrl,
-            wsPort: ws_port,
-            ffmpegOptions: {
-              '-stats': '', 
-              '-r': 25,
-              // '-s': '640x480',
-              '-codec:v': 'mpeg1video',
-              '-b:v': '1000k',
-              '-an': ''
-            },
-          }
-          
-          stream = new Stream(options);
-          stream.start();
-          currentRtspStreamUrl = newRtspStreamUrl
-        } else if (stream || feed === "stop") {
-          stream.stop();
-          stream = null;
-        }
-      }
-    // })
-    // .catch(error => {
-    //   console.error(error);
-    //   res.send(500).json({ 
-    //     error: true,
-    //     message: error.message 
-    //   })
-    // });
-  // res.send(200).json({ url: `ws://127.0.0.1:9999` })
-})
+app.ws('/api/stream', handler);
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`)
-})
+  console.log(`Server is running at http://localhost:${port}`);
+});
