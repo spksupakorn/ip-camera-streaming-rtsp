@@ -12,10 +12,20 @@ const { proxy } = require('rtsp-relay')(app);
 const handler = proxy({
   url: rtspUrl,
   // if your RTSP stream need credentials, include them in the URL as above
-  verbose: true,
+  verbose: false,
+  additionalFlags: [
+    '-vf', 'scale=1280:720',
+    '-preset', 'fast',
+    '-r', 24,                  
+    '-q:v', 6,                 
+    '-b:v', '2000K',            
+    '-maxrate', '2000K',       
+    '-bufsize', '4000K',
+    '-b:a', '96K',
+  ]
 });
 
-app.use(express.static('public'));
+// app.use(express.static('public'));
 
 // app.get('/', (req, res) => {
 //   res.sendFile(__dirname + './public/index.html');
