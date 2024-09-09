@@ -17,7 +17,7 @@ cron.schedule('*/30 * * * * *', () => {
   const retryCapture = async () => {
     const { outputPath , fileName } = await generateFilePath();
     const fileSize = await captureSnapshot(rtspUrl, outputPath);
-    if (fileSize > 380 * 1000) {
+    if (fileSize < 380 * 1000) {
       fs.unlink(outputPath, (err) => {
         if (err) {
             console.error('Error deleting the file:', err);
@@ -40,6 +40,8 @@ cron.schedule('*/30 * * * * *', () => {
 cron.schedule('0 0 * * *', () => {
   deleteImage();
 });
+
+// app.use('/api/upload', uploadRoute);
 
 app.listen(port, () => {
   console.log(`Server is running at port ${port}`);
